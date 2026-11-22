@@ -1,0 +1,64 @@
+[project]
+name = "eeg-subject-scaling"
+version = "1.0.0"
+description = "Code and results for 'Scaling subjects in cross-modal alignment: video decoding with EEG foundation model'"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Dung Truong" },
+    { name = "Kuntal Kokate" },
+    { name = "Arnaud Delorme" },
+]
+requires-python = "==3.12.*"
+dependencies = [
+    # Training / evaluation. torch and braindecode are pinned to the versions the
+    # reported runs used; braindecode provides the REVE model and the HBN I/O.
+    "torch==2.6.0",
+    # Transitive dependency of braindecode, pinned to match torch 2.6.0.
+    "torchaudio==2.6.0",
+    "braindecode @ git+https://github.com/braindecode/braindecode.git@c276bcfdf8cef9084014a837df6f44f75fb4e534",
+    "eegdash==0.8.4",
+    "mne>=1.9",
+    "mne-bids",
+    "numpy>=2.0",
+    "scipy",
+    "scikit-learn>=1.7",
+    "pandas",
+    "pyarrow",
+    "omegaconf",
+    "hydra-core",
+    "fire",
+    "einops",
+    "tqdm",
+    "filelock",
+    "huggingface-hub",
+    # Analysis / figures.
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+# Weights & Biases logging during training (off by default in the configs).
+wandb = ["wandb"]
+# Re-extracting the 12 frame features from the movie files (movie_annotation/).
+annotation = [
+    "opencv-python-headless",
+    "transformers",
+    "torchvision",
+    "Pillow",
+    "timm",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["eb_jepa*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

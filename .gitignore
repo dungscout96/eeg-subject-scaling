@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.DS_Store
+# Model checkpoints and run directories are large; keep them out of git.
+*.pth
+*.pth.tar
+runs/
+outputs/
+data/

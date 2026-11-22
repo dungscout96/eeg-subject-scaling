@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "batch": 64,
+    "epoch_size": 703,
+    "steps_per_epoch": 11,
+    "n_chans": 129,
+    "n_times": 400,
+    "counted": "matmul only, fwd+bwd (bwd taken as 2x fwd), encoder + CLIP head; elementwise excluded"
+  },
+  "depth22": {
+    "label": "depth 22 (e04 / addval / fromscratch)",
+    "depth": 22,
+    "tokens_per_sample": 258,
+    "mlp_dim": 1361,
+    "flops_forward_per_sample": 38690893824,
+    "flops_per_step": 7428651614208,
+    "flops_per_epoch": 81715167756288,
+    "encoder_params": 69164032,
+    "flops_per_step_6nd": 6852218978304,
+    "flops_per_epoch_6nd": 75374408761344
+  },
+  "depth12": {
+    "label": "depth 12 (e03 / d12av)",
+    "depth": 12,
+    "tokens_per_sample": 129,
+    "mlp_dim": 1361,
+    "flops_forward_per_sample": 10184048640,
+    "flops_per_step": 1955337338880,
+    "flops_per_epoch": 21508710727680,
+    "encoder_params": 37875712,
+    "flops_per_step_6nd": 1876211269632,
+    "flops_per_epoch_6nd": 20638323965952
+  }
+}
