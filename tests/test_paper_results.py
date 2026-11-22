@@ -30,4 +30,4 @@ def test_selection_reproduces_shipped_selection(arm, metric):
 def test_every_paper_number_recomputes(capsys):
     numbers = _load("paper_numbers", ROOT / "analysis" / "paper_numbers.py")
     assert numbers.main() == 0
-    assert "283/283 checks agree" in capsys.readouterr().out
+    assert "280/280 checks agree" in capsys.readouterr().out

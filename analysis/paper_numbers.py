@@ -463,22 +463,6 @@ def main() -> int:
                       for c in pr if s_of(c) == S) >= 2 for S in S_AXIS)
     check("C.2 probe selects earlier (pretrained rungs, of 10)", earlier, 7, "{:d}")
 
-    # What the shorter budget cost (App. C.3). NB: measured on a separate
-    # depth-22 random-init replication on the 1863-subject pool (R5 held out),
-    # trained for 800 epochs and scored on R5: best held-out probe reachable by
-    # epoch 400 vs by epoch 775, within the same run.
-    c800 = load("e05rand800_epoch_curve.json")["cells"]
-    by_s: dict[int, list[float]] = {}
-    for c, cv in c800.items():
-        best_all = max(v["probe_mean_r"] for v in cv.values())
-        best_400 = max(v["probe_mean_r"] for e, v in cv.items() if int(e) <= 400)
-        by_s.setdefault(s_of(c), []).append(best_all - best_400)
-    cost = {S: st.mean(v) for S, v in by_s.items()}
-    check("C.3 budget cost S<=400 (max)", max(cost[S] for S in S_AXIS[:6]), 0.0, "{:.4f}")
-    check("C.3 budget cost S=701", cost[701], 0.0014, "{:.4f}")
-    check("C.3 budget cost S>=1000", f"{min(cost[S] for S in (1000, 1400, 1863)):.4f}-"
-          f"{max(cost[S] for S in (1000, 1400, 1863)):.4f}", "0.0117-0.0156")
-
     # ---- report -----------------------------------------------------------
     print("\n" + "=" * 100)
     print(f"{'check':<66}{'recomputed':>16}{'paper':>16}")

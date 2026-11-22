@@ -72,8 +72,8 @@ ARMS = {
                       "cross": "configs/eval/test_DM_depth22.yaml"},
         pretrained=True,
     ),
-    # The 400-epoch cells at S >= 701 are trained too: comparing them with the
-    # 800-epoch cells measures what the shorter budget cost (paper App. C.3).
+    # At S >= 701 the 4400-step cells are trained too (the shared budget every
+    # arm starts from); the 8800-step retrains are the cells reported there.
     "random_d22": Arm(
         name="random_d22", prefix="e05fs",
         train_config="configs/train/depth22.yaml",

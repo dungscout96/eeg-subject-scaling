@@ -33,7 +33,7 @@ bash scripts/reproduce_from_results.sh
 This re-derives the checkpoint selection from the held-out epoch curves,
 regenerates the three paper figures into `figures/`, and recomputes every number
 in the main text and appendix tables, checking each against the value printed in
-the paper (`283/283 checks agree with the paper.`). The tables are written to
+the paper (`280/280 checks agree with the paper.`). The tables are written to
 `results/paper_tables.txt`. `uv run pytest` runs the same checks plus unit
 tests of the data subsampling, selection and feature code.
 
@@ -168,7 +168,7 @@ scripts/                     pipeline steps (above); cells.py is the experimenta
 analysis/                    figures and paper_numbers.py (all reported numbers)
 movie_annotation/            frame-feature extraction (12 probe features)
 movie_artifacts/             per-movie features, V-JEPA-2 embeddings, centring mean
-results/                     every measured JSON the paper reads (651 files)
+results/                     every measured JSON the paper reads (650 files)
 figures/                     rendered paper figures
 tests/                       unit tests and regression tests of results/
 ```
@@ -215,11 +215,6 @@ which reproduces the shipped values exactly (`tests/test_movie_features.py`).
 
 ## Notes
 
-- **Appendix C.3, "What the shorter budget cost".** These numbers are measured
-  on a separate depth-22 random-init replication on the 1863-subject pool (R5
-  held out), trained for 800 epochs and scored on R5: the best held-out probe
-  reachable by epoch 400 against by epoch 775 within the same run. Its curve is
-  `results/e05rand800_epoch_curve.json`; it is not part of the 2156-pool arms.
 - **Rounded inputs in Table A2.** The "gain" column and the cross-task
   zero-shot retrieval row were computed from the rung means as printed in
   Tables A3/A4. That row sits within ~0.005 of chance, so rounding moves its
