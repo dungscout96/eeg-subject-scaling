@@ -213,11 +213,6 @@ which reproduces the shipped values exactly (`tests/test_movie_features.py`).
 
 ---
 
-## Notes
-
-- The result JSONs record the checkpoint paths of the original runs on the
-  compute cluster; they are provenance only and are not read by the analysis.
-
 ## Citation
 
 ```bibtex
