@@ -215,10 +215,6 @@ which reproduces the shipped values exactly (`tests/test_movie_features.py`).
 
 ## Notes
 
-- **Rounded inputs in Table A2.** The "gain" column and the cross-task
-  zero-shot retrieval row were computed from the rung means as printed in
-  Tables A3/A4. That row sits within ~0.005 of chance, so rounding moves its
-  statistics; `results/paper_tables.txt` prints the unrounded fit beside it.
 - The result JSONs record the checkpoint paths of the original runs on the
   compute cluster; they are provenance only and are not read by the analysis.
 

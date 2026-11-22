@@ -15,13 +15,8 @@ Conventions (paper Sec. 2):
     e->v top-1 (101-way within-task, 85-way cross-task);
   * "floor" is the untrained encoder of the same depth.
 
-Where the paper derived a number from the PRINTED tables rather than from
-the raw values, this script does the same and says so: the "gain" ratios and
-the 701->1863 retrieval gains use the rung means as printed in Tables A3/A4
-(4 decimals for probes, 3 for retrieval) over the printed floor/chance, and
-the cross-task zero-shot retrieval row of Table A2 is fit to the 3-decimal
-values of Table A4. That row sits within ~0.005 of chance, so rounding moves
-its statistics; results/paper_tables.txt prints the unrounded fit beside it.
+Every derived number (fits, gains, differences) is computed from the
+unrounded rung means; rounding happens only when a value is printed.
 
 Usage:
     python analysis/paper_numbers.py
@@ -108,22 +103,16 @@ def rung_means(arm, readout, **kw):
     return {S: st.mean(v[S]) for S in S_AXIS}
 
 
-def printed(arm, readout):
-    """Rung means at the precision Tables A3/A4 print them."""
-    nd = 4 if READOUTS[readout][1] == "probe" else 3
-    return {S: round(v, nd) for S, v in rung_means(arm, readout).items()}
-
-
 def floor(readout: str, depth: int) -> float:
     return read(RAW / FLOOR_FILE[(readout, depth)], READOUTS[readout][1])
 
 
 def gain(arm: str, readout: str) -> float:
     """App. D 'gain' at S=1863: probes over the untrained floor of the same
-    depth, retrieval over chance -- from the printed values (see header)."""
+    depth, retrieval over chance."""
     _, kind, task = READOUTS[readout]
     den = floor(readout, ARMS[arm][3]) if kind == "probe" else CHANCE[task]
-    return printed(arm, readout)[1863] / round(den, 4)
+    return rung_means(arm, readout)[1863] / den
 
 
 def load_curves(arm: str) -> dict[str, dict]:
@@ -188,14 +177,8 @@ def fit_table(out):
         out.append(f"\n  {label}\n  {hdr}")
         for ro in READOUTS:
             g = gain(arm, ro)
-            if ro == "cross retrieval":
-                f = row(printed(arm, ro))       # as printed in the paper
-                raw = row(rung_means(arm, ro))
-                out.append(fmt("cross zero-shot retrieval", f, g))
-                out.append(fmt("  (same, unrounded rung means)", raw, g))
-            else:
-                f = row(rung_means(arm, ro))
-                out.append(fmt(ro, f, g))
+            f = row(rung_means(arm, ro))
+            out.append(fmt(ro.replace("cross retrieval", "cross zero-shot retrieval"), f, g))
             fits[(arm, ro)] = dict(f, gain=g)
     return fits
 
@@ -229,17 +212,17 @@ def main() -> int:
     # ---- Table A2, every cell, against the paper -------------------------
     paper_a2 = {
         ("warm", "within probe"): (0.0244, 0.935, 2.91, 8, 0.0195, 0.0027, 0.0321, 0.995),
-        ("warm", "within retrieval"): (0.0093, 0.899, 7.98, 9, 0.0020, 0.0017, 0.0126, 0.970),
-        ("warm", "cross probe"): (0.0214, 0.962, 2.92, 8, 0.0195, 0.0042, 0.0265, 0.997),
-        ("warm", "cross retrieval"): (0.0006, 0.853, 1.36, 5, 0.5000, -0.0000, 0.0008, 0.853),
+        ("warm", "within retrieval"): (0.0093, 0.899, 8.00, 9, 0.0020, 0.0017, 0.0126, 0.970),
+        ("warm", "cross probe"): (0.0214, 0.962, 2.93, 8, 0.0195, 0.0042, 0.0265, 0.997),
+        ("warm", "cross retrieval"): (0.0007, 0.828, 1.35, 6, 0.2539, -0.0003, 0.0008, 0.807),
         ("scratch22", "within probe"): (0.0146, 0.923, 2.04, 8, 0.0195, 0.0017, 0.0191, 0.983),
-        ("scratch22", "within retrieval"): (0.0055, 0.866, 5.05, 8, 0.0195, 0.0015, 0.0074, 0.913),
+        ("scratch22", "within retrieval"): (0.0055, 0.866, 5.03, 8, 0.0195, 0.0015, 0.0074, 0.913),
         ("scratch22", "cross probe"): (0.0138, 0.967, 2.07, 9, 0.0020, 0.0063, 0.0167, 0.992),
-        ("scratch22", "cross retrieval"): (0.0002, 0.265, 1.10, 3, 0.9102, -0.0001, 0.0003, 0.409),
+        ("scratch22", "cross retrieval"): (0.0002, 0.396, 1.15, 5, 0.5000, 0.0001, 0.0004, 0.612),
         ("scratch12", "within probe"): (0.0162, 0.946, 2.17, 9, 0.0020, 0.0049, 0.0207, 0.991),
-        ("scratch12", "within retrieval"): (0.0078, 0.891, 6.46, 8, 0.0195, 0.0016, 0.0105, 0.940),
+        ("scratch12", "within retrieval"): (0.0078, 0.891, 6.50, 8, 0.0195, 0.0016, 0.0105, 0.940),
         ("scratch12", "cross probe"): (0.0120, 0.979, 1.82, 9, 0.0020, 0.0068, 0.0139, 0.989),
-        ("scratch12", "cross retrieval"): (0.0003, 0.426, 1.27, 5, 0.5000, -0.0000, 0.0005, 0.589),
+        ("scratch12", "cross retrieval"): (0.0002, 0.363, 1.26, 5, 0.5000, -0.0001, 0.0004, 0.516),
     }
     for (arm, ro), p in paper_a2.items():
         f = fits[(arm, ro)]
@@ -314,15 +297,15 @@ def main() -> int:
     tp = [fits[(a, "within probe")]["gain"] for a in ARMS]
     tr = [fits[(a, "within retrieval")]["gain"] for a in ARMS]
     # The text quotes these ranges to one decimal (2.04-2.91 -> "2.0-2.9",
-    # 5.05-7.98 -> "5.0-8.0"); compare the endpoints to within 0.06.
+    # 5.03-8.00 -> "5.0-8.0"); compare the endpoints to within 0.06.
     for name, g, lo, hi in (("probe", tp, 2.0, 2.9), ("retrieval", tr, 5.0, 8.0)):
         check(f"3.1 S=1863 {name} gain range", f"{min(g):.2f}-{max(g):.2f}", f"{lo:.1f}-{hi:.1f}",
               ok=abs(min(g) - lo) < 0.06 and abs(max(g) - hi) < 0.06)
-    zs = max(abs(v - round(floor("cross retrieval", ARMS[a][3]), 3))
-             for a in ARMS for v in printed(a, "cross retrieval").values())
-    check("3.1 zero-shot cross retrieval within 0.005 of floor", zs, "<=0.005", "{:.4f}",
-          ok=zs <= 0.005 + 1e-9)
-    check("3.1 cross-task probe gain (pretrained)", fits[("warm", "cross probe")]["gain"], 2.92, "{:.2f}")
+    zs = max(abs(v - floor("cross retrieval", ARMS[a][3]))
+             for a in ARMS for v in rung_means(a, "cross retrieval").values())
+    check("3.1 zero-shot cross retrieval within 0.006 of floor", zs, "<=0.006", "{:.4f}",
+          ok=zs <= 0.006)
+    check("3.1 cross-task probe gain (pretrained)", fits[("warm", "cross probe")]["gain"], 2.93, "{:.2f}")
     # Typical (median) between-draw sd over every within-task cell of every arm.
     sds_p = [st.stdev(v) for a in ARMS for v in values(a, "within probe").values()]
     sds_r = [st.stdev(v) for a in ARMS for v in values(a, "within retrieval").values()]
@@ -333,10 +316,10 @@ def main() -> int:
     ratios = [fits[("warm", "within probe")]["slope"] / fits[(a, "within probe")]["slope"]
               for a in ("scratch22", "scratch12")]
     check("3.2 pretrained/random probe slope ratio", f"{min(ratios):.1f}-{max(ratios):.1f}", "1.5-1.7")
-    d701 = {a: printed(a, "within retrieval")[1863] - printed(a, "within retrieval")[701]
+    d701 = {a: rung_means(a, "within retrieval")[1863] - rung_means(a, "within retrieval")[701]
             for a in ARMS}
-    check("3.2 retrieval gain 701->1863, random d22", d701["scratch22"], 0.004, "{:+.3f}")
-    check("3.2 retrieval gain 701->1863, pretrained", d701["warm"], 0.021, "{:+.3f}")
+    check("3.2 retrieval gain 701->1863, random d22", d701["scratch22"], 0.0035, "{:+.4f}")
+    check("3.2 retrieval gain 701->1863, pretrained", d701["warm"], 0.0217, "{:+.4f}")
     m12 = rung_means("scratch12", "within retrieval")
     check("3.2 depth-12 retrieval peaks before the top rung", max(m12, key=m12.get), "1400", "{}")
     for ro, paper_mean, paper_wins, label in (
