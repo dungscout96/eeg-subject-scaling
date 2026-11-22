@@ -224,9 +224,6 @@ which reproduces the shipped values exactly (`tests/test_movie_features.py`).
   zero-shot retrieval row were computed from the rung means as printed in
   Tables A3/A4. That row sits within ~0.005 of chance, so rounding moves its
   statistics; `results/paper_tables.txt` prints the unrounded fit beside it.
-- **Not recomputable from `results/`:** the collapse-screen statistics of
-  Appendix C.1 (failure rate and loss ratios), which come from the training
-  logs of the reported runs.
 - The result JSONs record the checkpoint paths of the original runs on the
   compute cluster; they are provenance only and are not read by the analysis.
 
